@@ -83,7 +83,7 @@ py PCRT.py -m -i image.png
 
 - Linux:
 
-![](http://i.imgur.com/ZXnPqYD.png)
+![](https://i.imgur.com/4JhzjZx.png)
 
 ## Known problems:
 
