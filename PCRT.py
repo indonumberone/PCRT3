@@ -9,7 +9,7 @@ import zlib
 from termcolor import colored
 
 __author__ = "sherlly"
-__version__ = "1.2"
+__version__ = "1.3"
 
 
 def str2hex(s):
@@ -313,30 +313,28 @@ class PNG:
                          } Try fixing it? (y or n) [default:y] '
                 choice = input(msg)
             if choice == "y" or choice == "":
-                if width > height:
-                    # fix height
-                    for h in range(height, width):
+                print("Bruteforcing dimensions...")
+                for w in range(width + height + 1000):
+                    for h in range(height + width + 1000):
                         chunk_ihdr = (
-                            IHDR[8:12] + struct.pack("!I", h) + IHDR[16 : 8 + length]
+                            struct.pack(">I", w) + struct.pack(">I", h) + IHDR[16:21]
                         )
-                        if self.checkcrc(chunk_type, chunk_ihdr, calc_crc) is None:
-                            IHDR = IHDR[:8] + chunk_ihdr + calc_crc
-                            print("[Finished] Successfully fix crc")
-                            break
-                else:
-                    # fix width
-                    for w in range(width, height):
-                        chunk_ihdr = (
-                            IHDR[8:12] + struct.pack("!I", w) + IHDR[16 : 8 + length]
-                        )
-                        if self.checkcrc(chunk_type, chunk_ihdr, calc_crc) is None:
-                            IHDR = IHDR[:8] + chunk_ihdr + calc_crc
+                        if self.checkcrc(chunk_type, chunk_ihdr, crc) is None:
+                            crcFound = True
+                            IHDR = IHDR[:8] + chunk_ihdr + crc
+                            print(
+                                f"[Finished] Found correct dimensions:\nWidth: {w}\nHeight: {h}"
+                            )
                             print("[Finished] Successfully fix crc")
                             break
         else:
             print(
                 f"[Finished] Correct IHDR (offset: {int2hex(
                     pos+4+length)}): {str2hex(crc)}"
+            )
+        if not crcFound:
+            print(
+                f"{colored('[Error]', 'red')} Exhausted all dimensions up to ({width+height+1000}, {width+height+1000})"
             )
         self.file.write(IHDR)
         print(f"[Finished] IHDR chunk check complete (offset: {int2hex(pos-4)})")
@@ -730,7 +728,8 @@ class PNG:
             os.startfile(os.getcwd() + "/" + PATH)
             # final size
             size = input(
-                "Input width, height, bits and channel(space to split):").split()
+                "Input width, height, bits and channel(space to split):"
+            ).split()
             # remove temporary file
             shutil.rmtree(PATH)
 

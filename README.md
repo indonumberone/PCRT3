@@ -1,7 +1,7 @@
 # PCRT3 (PNG Check & Repair Tool)
 [![Static Badge](https://img.shields.io/badge/python-3.12-blue.svg)
 ](https://www.python.org/downloads/) 
-[![Version 1.2](https://img.shields.io/badge/Version-1.2-brightgreen.svg)]() 
+[![Version 1.3](https://img.shields.io/badge/Version-1.2-brightgreen.svg)]() 
 
 ## Description
 
@@ -90,9 +90,12 @@ py PCRT.py -m -i image.png
 - Decompress option is not tested, probably not working :)
 - -v (verbose) mode is always on bc checking in  checkIDAT() method breaks when -v is off, need fix.
 - findAncillary() method finds only eXIf, iTXt, tEXt, zTXt headers, need fix.
-- checkIHDR() method not working right.
 
 ## Release Log
+
+### version 1.3:
+
+- Fixed checkIHDR() method
 
 ### version 1.2:
 
