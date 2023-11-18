@@ -9,7 +9,7 @@
 
 It is python3 compatible fork of PCRT (https://github.com/sherlly/PCRT)
 
-**Works only on Python 3.12!**
+**Works only with Python 3.12!**
 
 It can:
 
@@ -90,7 +90,7 @@ py PCRT.py -m -i image.png
 - Decompress option is not tested, probably not working :)
 - -v (verbose) mode is always on bc checking in  checkIDAT() method breaks when -v is off, need fix.
 - findAncillary() method finds only eXIf, iTXt, tEXt, zTXt headers, need fix.
-
+- checkIHDR() method not working right.
 
 ## Release Log
 
