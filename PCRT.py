@@ -70,7 +70,10 @@ class PNG:
             return -1
         status = self.checkFormat(data)
         if status == -1:
-            print(f'{colored('[Warning]', 'red')} The file may be not a PNG image.')
+            print(
+                f'{colored('[Warning]', 'red')
+                     } The file may be not a PNG image.'
+            )
             return -1
         return data
 
@@ -84,7 +87,8 @@ class PNG:
             if self.choices != "":
                 choice = self.choices
             else:
-                msg = f'{colored('[Notice]', 'light_blue')} Auto fixing? (y or n) [default:y] '
+                msg = f'{colored('[Notice]', 'light_blue')
+                         } Auto fixing? (y or n) [default:y] '
                 choice = input(msg)
             if choice == "y" or choice == "":
                 header = binascii.unhexlify("89504E470D0A1A0A")
@@ -114,7 +118,7 @@ class PNG:
         filter: 0:None 1:sub X-A 2:up X-B 3:average X-(A+B)/2 4:Paeth p = A + B − C
         C B D
         A X.
-        """
+        """  # noqa: D205
         data = self.loadImage()
         if data == -1:
             return -1
@@ -169,14 +173,16 @@ class PNG:
         filter_dict = {0: "None", 1: "Sub", 2: "Up", 3: "Average", 4: "Paeth"}
         interlace_dict = {0: "Noninterlaced", 1: "Adam7 interlaced"}
         print(
-            "\n-------------------------Image Infomation---------------------------------------"
+            "\n-------------------------Image Infomation-------------------------------"
         )
         print(
-            f"Image Width: {self.width}\nImage Height: {self.height}\nBit Depth: {self.bits}\nChannel: {self.channel}"
+            f"Image Width: {self.width}\nImage Height: {
+                self.height}\nBit Depth: {self.bits}\nChannel: {self.channel}"
         )
         print(f"ColorType: {mode_dict[self.mode]}")
         print(
-            f"Interlace: {interlace_dict[self.interlace]}\nFilter method: {filter_dict[self.filter]}\nCompression method: {compress_dict[self.compression]}"
+            f"Interlace: {interlace_dict[self.interlace]}\nFilter method: {
+                filter_dict[self.filter]}\nCompression method: {compress_dict[self.compression]}"
         )
         print("Content: ")
         for k in self.content:
@@ -192,11 +198,14 @@ class PNG:
                         text += "\n" + text_t
                 print(k.decode() + ": ", text)
         print(
-            "--------------------------------------------------------------------------------"
+            "------------------------------------------------------------------------"
         )
 
     def makeCritical(self, name, payload):
-        print(f'{colored('[Notice]', 'light_blue')} Payload chunk name: {name}')
+        print(
+            f'{colored('[Notice]', 'light_blue')
+                 } Payload chunk name: {name}'
+        )
         payload = zlib.compress(payload)
         length = len(payload)
         crc = zlib.crc32((name + payload).encode()) & 0xFFFFFFFF
@@ -216,7 +225,10 @@ class PNG:
         if name is None:
             name = self.ranAncillaryName()
         name = name[0].lower() + name[1:4].upper()
-        print(f'{colored('[Notice]', 'light_blue')} Payload chunk name: {name}')
+        print(
+            f'{colored('[Notice]', 'light_blue')
+                 } Payload chunk name: {name}'
+        )
         length = len(payload)
         crc = zlib.crc32((name + payload).encode()) & 0xFFFFFFFF
         data = struct.pack(
@@ -297,7 +309,8 @@ class PNG:
             if self.choices != "":
                 choice = self.choices
             else:
-                msg = f'{colored("[Notice]", "light_blue")} Try fixing it? (y or n) [default:y] '
+                msg = f'{colored("[Notice]", "light_blue")
+                         } Try fixing it? (y or n) [default:y] '
                 choice = input(msg)
             if choice == "y" or choice == "":
                 if width > height:
@@ -322,7 +335,8 @@ class PNG:
                             break
         else:
             print(
-                f"[Finished] Correct IHDR (offset: {int2hex(pos+4+length)}): {str2hex(crc)}"
+                f"[Finished] Correct IHDR (offset: {int2hex(
+                    pos+4+length)}): {str2hex(crc)}"
             )
         self.file.write(IHDR)
         print(f"[Finished] IHDR chunk check complete (offset: {int2hex(pos-4)})")
@@ -406,18 +420,21 @@ class PNG:
             # check data length
             if length != len(chunk_data):
                 print(
-                    f'{colored("[Detected]", "green")} Error IDAT chunk data length! (offset: {int2hex(offset)})'
+                    f'{colored("[Detected]", "green")} Error IDAT chunk data length! (offset: {
+                        int2hex(offset)})'
                 )
                 print(f"chunk length: {int2hex(length)}")
                 print(f"correct chunk length: {int2hex(len(chunk_data))}")
                 if self.choices != "":
                     choice = self.choices
                 else:
-                    msg = f'{colored("[Notice]", "light_blue")} Try fixing it? (y or n) [default:y] '
+                    msg = f'{colored("[Notice]", "light_blue")
+                             } Try fixing it? (y or n) [default:y] '
                     choice = input(msg)
                 if choice == "y" or choice == "":
                     print(
-                        f'{colored('[Warning]', 'red')} Only fix because of DOS->Unix conversion'
+                        f'{colored('[Warning]', 'red')
+                           } Only fix because of DOS->Unix conversion'
                     )
                     # error reason:DOS->Unix conversion
                     chunk_data = self.fixDos2Unix(
@@ -428,7 +445,8 @@ class PNG:
                     )
                     if chunk_data is None:
                         print(
-                            f'{colored("[Failed]", "red")} Fix IDAT chunk failed, auto discard this operation... '
+                            f'{colored(
+                                "[Failed]", "red")} Fix IDAT chunk failed, auto discard this operation... '
                         )
                         chunk_data = IDAT[8:-4]
                     else:
@@ -436,20 +454,23 @@ class PNG:
                         print("[Finished] Successfully recover IDAT chunk data")
             else:
                 print(
-                    f"[Finished] Correct IDAT chunk data length (offset: {int2hex(offset)}, length: {int2hex(length)[2:]})"
+                    f"[Finished] Correct IDAT chunk data length (offset: {int2hex(offset)}, length: {
+                        int2hex(length)[2:]})"
                 )
                 # check crc
                 calc_crc = self.checkcrc(chunk_type, chunk_data, crc)
                 if calc_crc is not None:
                     print(
-                        f'{colored("[Detected]", "green")} Error IDAT CRC found! (offset: {int2hex(offset+8+length)}'
+                        f'{colored("[Detected]", "green")} Error IDAT CRC found! (offset: {
+                            int2hex(offset+8+length)}'
                     )
                     print(f"chunk crc: {str2hex(crc)}")
                     print(f"correct crc: {str2hex(calc_crc)}")
                     if self.choices != "":
                         choice = self.choices
                     else:
-                        msg = f'{colored("[Notice]", "light_blue")} Try fixing it? (y or n) [default:y] '
+                        msg = f'{colored("[Notice]", "light_blue")
+                                 } Try fixing it? (y or n) [default:y] '
                         choice = input(msg)
                     if choice == "y" or choice == "":
                         IDAT = IDAT[:-4] + calc_crc
@@ -457,14 +478,18 @@ class PNG:
 
                 else:
                     print(
-                        f"[Finished] Correct IDAT CRC (offset: {int2hex(offset+8+length)}): {str2hex(crc)}"
+                        f"[Finished] Correct IDAT CRC (offset: {int2hex(
+                            offset+8+length)}): {str2hex(crc)}"
                     )
 
             # write into file
             self.file.write(IDAT)
             IDAT_data_table.append(chunk_data)
             offset += len(chunk_data) + 12
-        print(f"[Finished] IDAT chunk check complete (offset: {int2hex(idat_begin)})")
+        print(
+            f"[Finished] IDAT chunk check complete (offset: {
+              int2hex(idat_begin)})"
+        )
         return 0, IDAT_data_table
 
     def checkIEND(self, data):
@@ -473,7 +498,8 @@ class PNG:
         pos = data.find(b"IEND")
         if pos == -1:
             print(
-                f'{colored('[Detected]', 'green')} Lost IEND chunk! Try auto fixing...'
+                f'{colored('[Detected]', 'green')
+                   } Lost IEND chunk! Try auto fixing...'
             )
             IEND = standard_IEND
             print(f"[Finished] Now IEND chunk: {str2hex(IEND)}")
@@ -481,7 +507,8 @@ class PNG:
             IEND = data[pos - 4 : pos + 8]
             if IEND != standard_IEND:
                 print(
-                    f'{colored("[Detected]", "green")} Error IEND chunk! Try auto fixing...'
+                    f'{colored("[Detected]", "green")
+                       } Error IEND chunk! Try auto fixing...'
                 )
                 IEND = standard_IEND
                 print(f"[Finished] Now IEND chunk: {str2hex(IEND)}")
@@ -491,10 +518,12 @@ class PNG:
 
             if data[pos + 8 :] != b"":
                 print(
-                    f'{colored('[Detected]', 'green')} Some data (length: {len(data[pos+8:])}) append in the end ({data[pos+8:pos+18]})'
+                    f'{colored('[Detected]', 'green')} Some data (length: {
+                        len(data[pos+8:])}) append in the end ({data[pos+8:pos+18]})'
                 )
                 while True:
-                    msg = f'{colored("[Notice]", "light_blue")} Try extracting them in: <1>File <2>Terminal <3>Quit [default:3] '
+                    msg = f'{colored(
+                        "[Notice]", "light_blue")} Try extracting them in: <1>File <2>Terminal <3>Quit [default:3] '
                     choice = input(msg)
                     if choice == "1":
                         filename = input("[File] Input the file name: ")
@@ -505,11 +534,17 @@ class PNG:
                         # os.startfile(os.getcwd())
                     elif choice == "2":
                         print(f"data: {data[pos+8:]}")
-                        print(f"hex(data): {binascii.hexlify(data[pos+8:]).decode()}")
+                        print(
+                            f"hex(data): {
+                              binascii.hexlify(data[pos+8:]).decode()}"
+                        )
                     elif choice == "3" or choice == "":
                         break
                     else:
-                        print(f'{colored("[Error]", "red")} Invalid choice! Try again.')
+                        print(
+                            f'{colored("[Error]", "red")
+                                 } Invalid choice! Try again.'
+                        )
 
         self.file.write(IEND)
         print("[Finished] IEND chunk check complete")
@@ -542,7 +577,8 @@ class PNG:
         if self.choices != "":
             choice = self.choices
         else:
-            msg = f'{colored("[Notice]", "light_blue")} Show the repaired image? (y or n) [default:n] '
+            msg = f'{colored("[Notice]", "light_blue")
+                     } Show the repaired image? (y or n) [default:n] '
             choice = input(msg)
         if choice == "y":
             try:
@@ -694,8 +730,7 @@ class PNG:
             os.startfile(os.getcwd() + "/" + PATH)
             # final size
             size = input(
-                "Input width, height, bits and channel(space to split):"
-            ).split()
+                "Input width, height, bits and channel(space to split):").split()
             # remove temporary file
             shutil.rmtree(PATH)
 
