@@ -87,7 +87,7 @@ class PNG:
             if self.choices != "":
                 choice = self.choices
             else:
-                msg = f'{colored('[Notice]', 'light_blue')
+                msg = f'{colored('[Notice]', 'yellow')
                          } Auto fixing? (y or n) [default:y] '
                 choice = input(msg)
             if choice == "y" or choice == "":
@@ -203,7 +203,7 @@ class PNG:
 
     def makeCritical(self, name, payload):
         print(
-            f'{colored('[Notice]', 'light_blue')
+            f'{colored('[Notice]', 'yellow')
                  } Payload chunk name: {name}'
         )
         payload = zlib.compress(payload)
@@ -226,7 +226,7 @@ class PNG:
             name = self.ranAncillaryName()
         name = name[0].lower() + name[1:4].upper()
         print(
-            f'{colored('[Notice]', 'light_blue')
+            f'{colored('[Notice]', 'yellow')
                  } Payload chunk name: {name}'
         )
         length = len(payload)
@@ -309,7 +309,7 @@ class PNG:
             if self.choices != "":
                 choice = self.choices
             else:
-                msg = f'{colored("[Notice]", "light_blue")
+                msg = f'{colored("[Notice]", "yellow")
                          } Try fixing it? (y or n) [default:y] '
                 choice = input(msg)
             if choice == "y" or choice == "":
@@ -428,7 +428,7 @@ class PNG:
                 if self.choices != "":
                     choice = self.choices
                 else:
-                    msg = f'{colored("[Notice]", "light_blue")
+                    msg = f'{colored("[Notice]", "yellow")
                              } Try fixing it? (y or n) [default:y] '
                     choice = input(msg)
                 if choice == "y" or choice == "":
@@ -469,7 +469,7 @@ class PNG:
                     if self.choices != "":
                         choice = self.choices
                     else:
-                        msg = f'{colored("[Notice]", "light_blue")
+                        msg = f'{colored("[Notice]", "yellow")
                                  } Try fixing it? (y or n) [default:y] '
                         choice = input(msg)
                     if choice == "y" or choice == "":
@@ -523,7 +523,7 @@ class PNG:
                 )
                 while True:
                     msg = f'{colored(
-                        "[Notice]", "light_blue")} Try extracting them in: <1>File <2>Terminal <3>Quit [default:3] '
+                        "[Notice]", "yellow")} Try extracting them in: <1>File <2>Terminal <3>Quit [default:3] '
                     choice = input(msg)
                     if choice == "1":
                         filename = input("[File] Input the file name: ")
@@ -577,7 +577,7 @@ class PNG:
         if self.choices != "":
             choice = self.choices
         else:
-            msg = f'{colored("[Notice]", "light_blue")
+            msg = f'{colored("[Notice]", "yellow")
                      } Show the repaired image? (y or n) [default:n] '
             choice = input(msg)
         if choice == "y":
