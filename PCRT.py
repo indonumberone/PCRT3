@@ -312,10 +312,11 @@ class PNG:
                 msg = f'{colored("[Notice]", "yellow")
                          } Try fixing it? (y or n) [default:y] '
                 choice = input(msg)
+            crcFound = False
             if choice == "y" or choice == "":
                 print("Bruteforcing dimensions...")
-                for w in range(width + height + 1000):
-                    for h in range(height + width + 1000):
+                for w in range(width+height+1000):
+                    for h in range(width+height+1000):
                         chunk_ihdr = (
                             struct.pack(">I", w) + struct.pack(">I", h) + IHDR[16:21]
                         )
@@ -327,15 +328,16 @@ class PNG:
                             )
                             print("[Finished] Successfully fix crc")
                             break
+            if not crcFound:
+                print(
+                f"{colored('[Error]', 'red')} Exhausted all dimensions up to ({width+height+1000}, {width+height+1000})"
+                )
         else:
             print(
                 f"[Finished] Correct IHDR (offset: {int2hex(
                     pos+4+length)}): {str2hex(crc)}"
             )
-        if not crcFound:
-            print(
-                f"{colored('[Error]', 'red')} Exhausted all dimensions up to ({width+height+1000}, {width+height+1000})"
-            )
+        
         self.file.write(IHDR)
         print(f"[Finished] IHDR chunk check complete (offset: {int2hex(pos-4)})")
 
