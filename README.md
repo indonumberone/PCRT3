@@ -1,7 +1,7 @@
 # PCRT3 (PNG Check & Repair Tool)
 [![Static Badge](https://img.shields.io/badge/python-3.12-blue.svg)
 ](https://www.python.org/downloads/) 
-[![Version 1.3](https://img.shields.io/badge/Version-1.2-brightgreen.svg)]() 
+[![Version 1.4](https://img.shields.io/badge/Version-1.4-brightgreen.svg)]() 
 
 ## Description
 
@@ -89,11 +89,15 @@ py PCRT.py -m -i image.png
 
 - Decompress option is not tested, probably not working :)
 - -v (verbose) mode is always on bc checking in  checkIDAT() method breaks when -v is off, need fix.
-- findAncillary() method finds only eXIf, iTXt, tEXt, zTXt headers, need fix.
-
+- fixDos2Unix() seems to be broken.
 ## Release Log
 
-### version 1.3:
+### v1.4
+
+- Updated findAncillary() method, now it finds cHRM, pHYs, gAMA, sBIT, PLTE, bKGD, sTER, hIST, iCCP, sPLT, sRGB, dSIG, tIME, tRNS, oFFs, sCAL, fRAc, gIFg, gIFt, gIFx, eXIf, iTXt, tEXt, zTXt chunks.
+- Impoved image info output.
+
+### v1.3:
 
 - Fixed checkIHDR() method
 
@@ -101,7 +105,7 @@ py PCRT.py -m -i image.png
 
 - Rewrited to support Python 3.12
 
-### version 1.1:
+### v1.1:
 
 
 **Add：**
@@ -112,7 +116,7 @@ py PCRT.py -m -i image.png
 	- add into critical chunk (only support IDAT chunk) (`-w 2`)
 - decompress image data and show the raw image (`-d`)
 
-### version 1.0：
+### v1.0：
 
 **Feature:**
 

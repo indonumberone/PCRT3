@@ -9,7 +9,7 @@ import zlib
 from termcolor import colored
 
 __author__ = "sherlly"
-__version__ = "1.3"
+__version__ = "1.4"
 
 
 def str2hex(s):
@@ -155,7 +155,7 @@ class PNG:
         data = self.loadImage()
         if data == -1:
             return -1
-        self.content = self.findAncillary(data)
+        self.txt_content, self.image_content, self.crcs = self.findAncillary(data)
 
     def printPicInfo(self):
         status = self.getPicInfo()
@@ -184,11 +184,28 @@ class PNG:
             f"Interlace: {interlace_dict[self.interlace]}\nFilter method: {
                 filter_dict[self.filter]}\nCompression method: {compress_dict[self.compression]}"
         )
-        print("Content: ")
-        for k in self.content:
-            if self.content[k] != []:
+        
+        for k in self.image_content:
+            if self.image_content[k] != []:
+                if k == b'pHYs':
+                    print(f'Chunk {k.decode()}: {self.image_content[k][0]}x{self.image_content[k][1]} {self.image_content[k][2]}')
+                elif k == b'gAMA':
+                    print(f'Chunk {k.decode()}: {self.image_content[k]}')
+                elif k == b'sRGB':
+                    print(f'Chunk {k.decode()}: {self.image_content[k]}')
+                elif k == b'tIME':
+                    print(f'Chunk {k.decode()}: {self.image_content[k]}')
+                else:
+                    print(f'Chunk {k.decode()}: {str2hex(self.image_content[k][0])}')
+            if self.crcs[k] != []:
+                if self.crcs[k][1] is not None:
+                    print(f'CRC error in chunk {k.decode()} (computed {str2hex(self.crcs[k][0])}, found {str2hex(self.crcs[k][1])})')    
+                
+        print("\nContent: ")
+        for k in self.txt_content:
+            if self.txt_content[k] != []:
                 text = ""
-                for v in self.content[k]:
+                for v in self.txt_content[k]:
                     text_t = v.decode()
                     import re
 
@@ -258,20 +275,73 @@ class PNG:
             self.file.write(data[pos - 4 :])
 
     def findAncillary(self, data):
-        # ancillary = [b'cHRM',b'gAMA',b'sBIT',b'PLTE','bKGD',b'sTER',b'hIST',b'iCCP',b'pHYs',b'sPLT',b'sRGB',b'dSIG',b'eXIf',b'iTXt',b'tEXt',b'zTXt',b'tIME',b'tRNS',b'oFFs',b'sCAL',b'fRAc',b'gIFg',b'gIFt',b'gIFx']
-        # ancillary not used in pcrtv1, probably bug, need fix
+        ancillary = [b'cHRM',b'pHYs',b'gAMA',b'sBIT',b'PLTE',b'bKGD',b'sTER',b'hIST',b'iCCP',b'sPLT',b'sRGB',b'dSIG',b'tIME',b'tRNS',b'oFFs',b'sCAL',b'fRAc',b'gIFg',b'gIFt',b'gIFx']
         attach_txt = [b"eXIf", b"iTXt", b"tEXt", b"zTXt"]
-        content = {}
+        image_content = {}
+        crcs = {}
+        for data_i in ancillary:
+            pos = 0
+            image_content[data_i] = []
+            crcs[data_i] = []
+            while pos != -1:
+                pos = data.find(data_i, pos)
+                if pos != -1:
+                    length = str2num(data[pos - 4 : pos])
+                    image_content[data_i].append(data[pos + 4 : pos + 4 + length])
+                    crcs[data_i] = data[pos+4+length: pos+4+length+4]
+                    calculatedcrc = self.checkcrc(data_i, image_content[data_i][0], crcs[data_i])
+                    if calculatedcrc is not None:
+                        crcs[data_i] = calculatedcrc, crcs[data_i]
+                    else:
+                        crcs[data_i] = []
+                    pos = pos + 4 + length
+                    if data_i == b'pHYs':
+                        p_h = struct.unpack('>I', image_content[data_i][0][:4])[0]
+                        p_w = struct.unpack('>I', image_content[data_i][0][4:8])[0]
+                        unit = image_content[data_i][0][8]
+                        if unit == 1:
+                            unit = "pixels/meter"
+                        else:
+                            unit = "unknown unit"
+                        image_content[data_i] = p_h, p_w, unit
+                    elif data_i == b'sRGB':
+                        srgb = image_content[data_i][0]
+                        if srgb == b'\x00':
+                            srgb = "Perceptual"
+                        elif srgb == b'\x01':
+                            srgb = "Relative Colorimetric"
+                        elif srgb == b'\x02':
+                            srgb = "Saturation"
+                        elif srgb == b'\x03':
+                            srgb = "Absolute Colorimetric"
+                        image_content[data_i] = srgb
+                    elif data_i == b'gAMA':
+                        gama = struct.unpack('>I', image_content[data_i][0][:4])[0]
+                        image_content[data_i] = gama/100000
+                    elif data_i == b'tIME':
+                        png_timestamp = image_content[data_i][0]
+                        year = str2num(png_timestamp[:2])
+                        month = png_timestamp[2]
+                        day = png_timestamp[3]
+                        hour = png_timestamp[4]
+                        minute = png_timestamp[5]
+                        second = png_timestamp[6]
+                        image_content[data_i] = f'{str(year)}:{str(month).zfill(2)}:{str(day).zfill(2)} {str(hour).zfill(2)}:{str(minute).zfill(2)}:{str(second).zfill(2)}'
+                        
+                        
+                    pos += 1
+                    
+        txt_content = {}
         for text in attach_txt:
             pos = 0
-            content[text] = []
+            txt_content[text] = []
             while pos != -1:
                 pos = data.find(text, pos)
                 if pos != -1:
                     length = str2num(data[pos - 4 : pos])
-                    content[text].append(data[pos + 4 : pos + 4 + length])
+                    txt_content[text].append(data[pos + 4 : pos + 4 + length])
                     pos += 1
-        return content
+        return txt_content, image_content, crcs
 
     def checkcrc(self, chunk_type, chunk_data, checksum):
         # check crc
