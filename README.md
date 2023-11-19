@@ -89,7 +89,6 @@ py PCRT.py -m -i image.png
 
 - Decompress option is not tested, probably not working :)
 - -v (verbose) mode is always on bc checking in  checkIDAT() method breaks when -v is off, need fix.
-- fixDos2Unix() seems to be broken.
 ## Release Log
 
 ### v1.4
